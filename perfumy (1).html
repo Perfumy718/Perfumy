@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Katalog Perfum</title>
+
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --black: #0d0d0d;
+    --off-white: #f7f4f0;
+    --gold: #b8955a;
+    --gold-light: #d4b483;
+    --muted: #8a8078;
+    --card-bg: #ffffff;
+    --border: #e8e2da;
+    --hover: #f2ede6;
+    --tag-women: #c9a8c0;
+    --tag-men: #8aabb5;
+    --tag-unisex: #a8b89a;
+  }
+
+  body {
+    background: var(--off-white);
+    color: var(--black);
+    font-family: Georgia, 'Times New Roman', serif;
+    font-weight: normal;
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--black);
+    color: var(--off-white);
+    padding: 40px 24px 32px;
+    text-align: center;
+    border-bottom: 1px solid #222;
+  }
+  header h1 {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: clamp(28px, 5vw, 48px);
+    font-weight: normal;
+    letter-spacing: 0.18em;
+    color: var(--gold-light);
+  }
+  header p {
+    margin-top: 6px;
+    font-size: 12px;
+    letter-spacing: 0.25em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  /* SEARCH */
+  .search-bar {
+    max-width: 560px;
+    margin: 28px auto 0;
+    position: relative;
+  }
+  .search-bar input {
+    width: 100%;
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 2px;
+    color: var(--off-white);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    padding: 12px 44px 12px 16px;
+    outline: none;
+    letter-spacing: 0.04em;
+  }
+  .search-bar input::placeholder { color: #555; }
+  .search-bar input:focus { border-color: var(--gold); }
+  .search-icon {
+    position: absolute; right: 14px; top: 50%;
+    transform: translateY(-50%);
+    color: #555; font-size: 16px; pointer-events: none;
+  }
+
+  /* LAYOUT */
+  .container { max-width: 1400px; margin: 0 auto; padding: 0 24px 80px; }
+
+  /* BRAND GRID */
+  .brands-section { padding: 36px 0 24px; }
+  .section-label {
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+  .brand-grid {
+    display: flex; flex-wrap: wrap; gap: 8px;
+  }
+  .brand-btn {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 8px 16px;
+    font-family: Georgia, serif;
+    font-size: 15px;
+    font-weight: 400;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    color: var(--black);
+    transition: all 0.18s;
+    white-space: nowrap;
+  }
+  .brand-btn:hover { background: var(--hover); border-color: var(--gold); color: var(--gold); }
+  .brand-btn.active { background: var(--black); border-color: var(--black); color: var(--gold-light); }
+
+  /* GENDER FILTER */
+  .gender-bar {
+    display: none; gap: 0; margin: 20px 0 0;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+    width: fit-content;
+  }
+  .gender-bar.visible { display: flex; }
+  .gender-btn {
+    padding: 10px 28px;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    border: none;
+    background: var(--card-bg);
+    cursor: pointer;
+    color: var(--muted);
+    transition: all 0.18s;
+    font-family: 'Inter', sans-serif;
+  }
+  .gender-btn + .gender-btn { border-left: 1px solid var(--border); }
+  .gender-btn:hover { background: var(--hover); color: var(--black); }
+  .gender-btn.active { background: var(--black); color: var(--gold-light); }
+
+  /* PERFUME GRID */
+  .perfume-section { display: none; padding-top: 24px; }
+  .perfume-section.visible { display: block; }
+  .selected-brand-name {
+    font-family: Georgia, serif;
+    font-size: clamp(22px, 3vw, 32px);
+    font-weight: normal;
+    letter-spacing: 0.1em;
+    color: var(--black);
+    margin-bottom: 4px;
+  }
+  .count-label { font-size: 12px; color: var(--muted); letter-spacing: 0.1em; margin-bottom: 20px; }
+
+  .perfume-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 12px;
+  }
+  .perfume-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 18px 20px;
+    transition: all 0.18s;
+    cursor: default;
+  }
+  .perfume-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.08); border-color: var(--gold); transform: translateY(-1px); }
+  .perfume-name {
+    font-family: Georgia, serif;
+    font-size: 16px;
+    font-weight: normal;
+    color: var(--black);
+    margin-bottom: 10px;
+    line-height: 1.4;
+  }
+  .gender-tag {
+    display: inline-block;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 1px;
+    margin-bottom: 12px;
+  }
+  .tag-women { background: #f5eef3; color: #7d5470; }
+  .tag-men { background: #edf2f5; color: #3a6575; }
+  .tag-unisex { background: #f0f3ee; color: #4a6040; }
+
+  .shop-links { display: flex; gap: 8px; flex-wrap: wrap; }
+  .shop-link {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+    text-decoration: none; color: var(--muted);
+    border: 1px solid var(--border);
+    padding: 5px 12px; border-radius: 1px;
+    transition: all 0.15s;
+  }
+  .shop-link:hover { color: var(--gold); border-color: var(--gold); background: #fdf9f4; }
+  .shop-link svg { width: 11px; height: 11px; }
+
+  /* DIVIDER */
+  .divider { border: none; border-top: 1px solid var(--border); margin: 28px 0; }
+
+  /* EMPTY STATE */
+  .empty-state {
+    text-align: center; padding: 60px 20px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px; color: var(--muted); letter-spacing: 0.1em;
+  }
+
+  /* BACK BTN */
+  .back-btn {
+    display: none; align-items: center; gap: 8px;
+    background: none; border: none; cursor: pointer;
+    font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--muted); padding: 0; margin-bottom: 20px;
+    transition: color 0.15s;
+  }
+  .back-btn.visible { display: inline-flex; }
+  .back-btn:hover { color: var(--black); }
+
+  /* SEARCH RESULTS */
+  .search-results-section { display: none; padding-top: 24px; }
+  .search-results-section.visible { display: block; }
+
+  @media (max-width: 600px) {
+    header { padding: 28px 16px 24px; }
+    .container { padding: 0 16px 60px; }
+    .brand-btn { font-size: 13px; padding: 7px 12px; }
+    .perfume-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Katalog Perfum</h1>
+  <p>Wybierz markę · Wybierz dla kogo · Odkryj</p>
+  <div class="search-bar">
+    <input type="text" id="searchInput" placeholder="Szukaj perfumu lub marki..." autocomplete="off">
+    <span class="search-icon">⌕</span>
+  </div>
+</header>
+
+<div class="container">
+  <div class="brands-section">
+    <p class="section-label">Marki</p>
+    <div class="brand-grid" id="brandGrid"></div>
+  </div>
+
+  <div class="gender-bar" id="genderBar">
+    <button class="gender-btn active" data-gender="all" onclick="filterGender('all', this)">Wszystkie</button>
+    <button class="gender-btn" data-gender="women" onclick="filterGender('women', this)">Kobieta</button>
+    <button class="gender-btn" data-gender="men" onclick="filterGender('men', this)">Mężczyzna</button>
+    <button class="gender-btn" data-gender="unisex" onclick="filterGender('unisex', this)">Unisex</button>
+  </div>
+
+  <button class="back-btn" id="backBtn" onclick="goBack()">
+    ← Wszystkie marki
+  </button>
+
+  <div class="perfume-section" id="perfumeSection">
+    <div class="selected-brand-name" id="selectedBrandName"></div>
+    <div class="count-label" id="countLabel"></div>
+    <div class="perfume-grid" id="perfumeGrid"></div>
+  </div>
+
+  <div class="search-results-section" id="searchResultsSection">
+    <p class="section-label">Wyniki wyszukiwania</p>
+    <div class="perfume-grid" id="searchGrid"></div>
+  </div>
+</div>
+
+<script>
+const data = {
+  "Acqua di Parma": {
+    unisex: ["Arancia di Capri 100 ml EDT","Mandorlo di Sicilia 100 ml EDT","Oud 100 ml EDP","Iris Nobile 50 ml"]
+  },
+  "Giorgio Armani": {
+    unisex: ["Acqua di Gio Elixir 50 ml","Acqua di Gio Elixir 100 ml EDP","Acqua di Gio Profumo Parfum 125 ml","Acqua di Gioia Sun 100 ml EDP","Because It's You 100 ml EDP","Code Absolu 110 ml","Code Absolu Gold 110 ml","Code Cashmere 75 ml EDP","Code Elixir 125 ml","Gio Absolu 100 ml EDP","Gio Parfum 100 ml","In Love with You 100 ml EDP","My Way Nacre 90 ml EDP","My Way Ylang 90 ml EDP","Si 100 ml EDP Intense","Si White Limited 100 ml EDP","Si 100 ml EDT","Si Intense 100 ml","Si Passione Eclat 100 ml EDP","Si Passione EDP","Si Passione Red Musk 100 ml EDP","Stronger Powerfully","Stronger with You Amber 100 ml EDP","Stronger with You Freeze 100 ml EDT","Stronger with You Freeze Candy 100 ml EDT","Stronger with You Intensely 100 ml EDP","Stronger with You Leather 100 ml EDP","Stronger with You Only 100 ml EDT","Stronger with You Oud 100 ml EDP","Stronger with You Parfum","Stronger with You Santalwood EDP","Stronger with You Tobacco Exclusive Edition 100 ml EDP","Acqua di Gioia 50 ml","Because It's You 50 ml EDP"],
+    women: ["Code Absolu Women 75 ml EDP","Code Women 75 ml EDP"],
+    men: ["Code Men 110 ml EDP","Code Men 50 ml EDT"]
+  },
+  "Arte Olfatto": {
+    unisex: ["Bois Precious 100 ml Extrait de Parfum","Oud Khasian 100 ml Extrait de Parfum","Vanesya 100 ml Extrait de Parfum"]
+  },
+  "Azzaro": {
+    men: ["Chrome Extreme 100 ml EDP","The Most Wanted Intense 100 ml EDP","The Most Wanted Parfum 100 ml","Wanted 100 ml EDT","Wanted by Night 100 ml EDP","Wanted Tonic 100 ml EDT"]
+  },
+  "Bdk Parfums": {
+    unisex: ["Rouge Smoking 100 ml EDP"]
+  },
+  "Hugo Boss": {
+    unisex: ["Bottled Absolu Parfum Intense 100 ml","Bottled Beyond 100 ml EDP","Bottled Bold Citrus 100 ml EDP","Bottled 100 ml EDP","Bottled Elixir Parfum Intense 100 ml","Bottled Infinite 100 ml EDP","Bottled Intense 100 ml EDP","Bottled Intense 100 ml EDT","Bottled Night 100 ml EDT","Bottled Oud 100 ml EDP","Bottled Pacific 100 ml EDT","Bottled Sport 100 ml EDT","Bottled Striking Lavender 100 ml EDP","Bottled Tonic 100 ml EDT","Bottled Triumph Elixir Parfum Intense 100 ml","Bottled United 100 ml EDP","Bottled Unlimited 100 ml EDT","The Scent Elixir Parfum Intense 100 ml","The Scent Parfum 100 ml","Bottled 50 ml EDT"],
+    men: ["Men Without Foil 125 ml EDT","The Scent Magnetic Men 100 ml EDP"],
+    women: ["The Scent Absolute Her 100 ml EDP","The Scent Le Parfum Women 100 ml","The Scent Magnetic Her 100 ml EDP","The Scent Parfum Edition Her 100 ml"]
+  },
+  "Bottega": {
+    unisex: ["Eau Sensuelle 75 ml EDP"]
+  },
+  "Bottega Veneta": {
+    women: ["VI Rosa 100 ml","VII Lilla 100 ml"]
+  },
+  "Burberry": {
+    unisex: ["Goddess 100 ml EDP","Goddess EDP Intense","Goddess Parfum","Hero 100 ml EDT","Hero 100 ml EDP","Hero Parfum 100 ml","My 90 ml EDP","My Black Parfum 90 ml","My Blush 90 ml EDP","My 50 ml EDP","My Black Parfum 50 ml","My Blush 50 ml EDP"],
+    men: ["for Men 100 ml EDT"],
+    women: ["for Women 100 ml EDP","Her 100 ml EDP","Her Elixir 100 ml","Her Intense 100 ml EDP","Touch for Women 100 ml EDP","Weekend Women 100 ml EDP"]
+  },
+  "Bvlgari": {
+    unisex: ["Aqua Marine 100 ml EDT","Man Black Orient Parfum 100 ml","Man Glacial Essence 100 ml EDP","Man In Black 100 ml EDP","Man Rain Essence 100 ml EDP","Man Wood Neroli 100 ml EDP","Omnia Coral 100 ml EDT","Omnia Coral 65 ml EDT","Omnia Crystalline 100 ml EDT","Omnia Crystalline 65 ml EDP","Splendida Jasmin Noir 100 ml EDP","Splendida Patchouli Tentation 100 ml EDP","Splendida Tubereuse Mystique 100 ml EDP"],
+    men: ["Aqua Pour Homme 100 ml EDT","Blv Pour Homme 100 ml EDT"]
+  },
+  "Cacharel": {
+    women: ["Amor Amor 100 ml EDT","Noa 100 ml EDT"]
+  },
+  "Calvin Klein": {
+    unisex: ["Beauty 100 ml EDP","Ck One 200 ml"],
+    men: ["Ck In2u Heat Him 150 ml","Eternity for Men Parfum 100 ml","Euphoria Men 100 ml EDT","Shock for Him 200 ml EDT"],
+    women: ["Ck In2u Her 150 ml EDT","Euphoria Women 100 ml EDP"]
+  },
+  "Carner Barcelona": {
+    unisex: ["Cuirs 100 ml EDP","Ibiza Nights 100 ml","La Playa 100 ml EDP","Marbella 100 ml EDP","Revolucion 100 ml EDP","Sal Y Limon 100 ml EDP","Super Moon 100 ml EDP","Tennis Club 100 ml EDP"]
+  },
+  "Carolina Herrera": {
+    unisex: ["212 VIP Black 100 ml EDP","Bad Boy 100 ml EDT","Bad Boy Cobalt 100 ml EDP","Bad Boy Cobalt Elixir 100 ml EDP","Bad Boy Elixir 100 ml EDP","Bad Boy Extreme 100 ml","Bad Boy Gold Fantasy 100 ml EDT","Bad Boy Sparkling Ice 100 ml EDT","Good Girl Blush 80 ml EDP","Good Girl Blush Elixir 80 ml EDP","Good Girl Blush Tweed Talk 80 ml EDP","Good Girl Bowtastic Blush 80 ml EDP","Good Girl Bowtastic 80 ml EDP","Good Girl Bowtastic Elixir 80 ml EDP","Good Girl Colector 80 ml EDP","Good Girl Collector Edition 80 ml EDP","Good Girl Colormania 80 ml EDP","Good Girl Dazzling Garden 80 ml EDP","Good Girl Gold Fantasy","Good Girl Jasmine Absolute 80 ml EDP","Good Girl Sexy 80 ml EDP","Good Girl Superstars 80 ml EDP","Good Girl Very Elixir 80 ml","Good Girl Very Glam Parfum 80 ml","Good Girl White 80 ml EDP","La Bomba 80 ml EDP","Sparkling Ice EDP"],
+    men: ["212 Men NYC"],
+    women: ["212 Sexy Women 100 ml EDP","212 VIP Women 80 ml","212 VIP Women 80 ml EDP","212 Women 100 ml EDT"]
+  },
+  "Cartier": {
+    unisex: ["La Panthera Parfum","La Panthere 75 ml EDT"]
+  },
+  "Chanel": {
+    unisex: ["Allure Homme Sport 100 ml EDT","Allure Sensuelle","Bleu 100 ml EDP","Bleu 100 ml EDT","Bleu L'Exclusif Parfum 100 ml","Bleu Parfum 100 ml","Chance Eau Splendide 100 ml EDP","Chance Tendre 100 ml EDP","Coco 100 ml EDP","Coco Mademoiselle Fragrance Primer 100 ml","Coco Mademoiselle Leau Privee Night Fragrance 100 ml","Coco Noir 100 ml EDP","Cristalle 100 ml EDP","Egoiste Platinum Nowa Szata 100 ml EDT","Gabrielle 100 ml EDP","No 5 EDP","Platinum Egoiste 100 ml EDT","Chance 50 ml EDP","Chance Eau Fraiche 50 ml EDT","Platinum Egoiste 50 ml EDT"]
+  },
+  "Chloe": {
+    women: ["75 ml EDP","Intense EDP Intense 100 ml EDP","Love Story 75 ml EDP","Naturelle 100 ml EDP","Nomade EDP","Nomade Jasmin Naturel Intense 75 ml","Nomade Nuit D'Egypte 75 ml"]
+  },
+  "Comme des Garcons": {
+    unisex: ["2 100 ml EDP"]
+  },
+  "Costume National": {
+    unisex: ["Scent Intense 100 ml"]
+  },
+  "Creed": {
+    unisex: ["Aventus 10 Anniversary 100 ml EDP","Carmina 75 ml EDP","Love In Black 75 ml EDP","Love In White 75 ml EDP","Millesime Imperial 100 ml EDP","Original Santal 100 ml EDP","Pure White Cologne 75 ml","Royal Oud 100 ml EDP","Silver Mountain Water 100 ml EDP","Spring Flower 75 ml EDP","Viking 100 ml EDP","Wind Flowers 75 ml EDP"]
+  },
+  "Davidoff": {
+    women: ["Cool Water Woman 100 ml EDT"]
+  },
+  "Dolce & Gabbana": {
+    unisex: ["3 L'Imperatrice EDT","3 L'Imperatrice 100 ml EDT","Devotion 100 ml EDP","Devotion Intense 100 ml EDP","King 100 ml EDP","King 100 ml EDP Intense","King 100 ml EDT","Light Blue Eau Intense 100 ml EDP","My Devotion 100 ml EDP Intense","Queen 100 ml EDP","The Only One 100 ml EDP","The Only One 2 100 ml EDP","The Only One Intense 100 ml","L'Imperatrice 50 ml EDT","The Only One 50 ml EDP"],
+    men: ["Devotion Pour Homme 100 ml EDP","Gold for Men 100 ml EDP Intense","Intenso Men 125 ml EDP","Light Blue Eau Intense Men 100 ml EDP","Light Blue Men 125 ml EDT","Light Blue Summer Vibes Men 125 ml"],
+    women: ["Intense Women 100 ml EDP","Light Blue Forever Women 100 ml","Light Blue Summer Vibes Women 100 ml EDT","Light Blue Women"]
+  },
+  "Christian Dior": {
+    unisex: ["Ambre Nuit 125 ml","Bois D'Argent 125 ml","Bonne Etoile Baby 100 ml","Fahrenheit 32 White 100 ml EDT","Fahrenheit Parfum 75 ml","Feve Delicieuse 125 ml","Gris 125 ml EDP","Higher Energy","Homme 100 ml EDT","Homme Intense 100 ml EDP","Homme Sport 100 ml EDT","Hypnotic Poison 100 ml EDP","J'Adore Black 100 ml EDP","J'Adore EDP","J'Adore L'Or Essence de Parfum 80 ml","J'Adore Parfum D'Eau EDP","Joy Intense 90 ml EDP","Midnight Poison 100 ml EDP","Miss Dior Absolutely Blossoming","Miss Dior Blooming Bouquet","Miss Dior Essence","Oud Ispahan 125 ml","Pure Poison 100 ml EDP","Purple Oud 125 ml","Sakura 125 ml EDP","Sauvage Cherry Patchouli","Sauvage Eau Forte Parfum 100 ml","Sauvage EDP","Sauvage EDT","Sauvage Elixir","Sauvage Parfum","Sauvage Sport 100 ml EDT","Tobacolor 125 ml","Addict 50 ml EDP","Addict 50 ml EDT","Addict Eau Fraiche 50 ml EDT","J'Adore 50 ml EDP","Miss Dior Blooming Bouquet 50 ml EDT"],
+    women: ["Dune Women EDT"]
+  },
+  "Dkny": {
+    women: ["24/7 12 100 ml EDP","Be Delicious 100 ml EDP"]
+  },
+  "Estee Lauder": {
+    women: ["Le Rouge Gloss 100 ml EDP","Modern Muse Chic 100 ml EDP"]
+  },
+  "Frederic Malle": {
+    unisex: ["Carnal Flower Without Foil 100 ml EDP","French Lover Without Foil 100 ml EDP","Iris Poudre Without Foil 100 ml EDP","Musc Ravageaur Without Foil 100 ml EDP","Portrait of A Lady Without Foil 100 ml EDP","The Moon Without Foil 100 ml EDP","The Night Without Foil 100 ml EDP"]
+  },
+  "Gisada": {
+    women: ["Ambassadora for Women 100 ml EDP"]
+  },
+  "Givenchy": {
+    unisex: ["Ange Ou Demon 100 ml EDP","Gentleman Boisee 100 ml EDP","Gentleman 100 ml EDP","Gentleman 100 ml EDT","Gentleman Reserve Privee 100 ml EDP","Gentleman Society 100 ml EDP","Insense Ultramarine 100 ml EDT","Irresistible 80 ml EDP","Irresistible Rose Velvet 80 ml EDP","L'Interdit Parfum 80 ml","L'Interdit Absolu 80 ml EDP Intense","L'Interdit Intense 80 ml EDP","L'Interdit Rouge Ultime 80 ml EDP","L'Interdit Tubereuse Noire 80 ml EDP","Pi 100 ml EDT","Ange Ou Demon 50 ml EDP","Ange Ou Demon Le Secret 50 ml EDP","Irresistible 50 ml EDP"],
+    men: ["Blue Label Pour Homme 100 ml EDT"]
+  },
+  "Gucci": {
+    unisex: ["A Reason To Love 100 ml EDP","A Song for The Rose 100 ml EDP","Bloom Acqua di Fiori 100 ml EDT","II 75 ml EDP","Envy Me 100 ml EDT","Flora Stara Wersja 75 ml EDP","Flora Gorgeous Gardenia","Flora Gorgeous Orchid 100 ml EDP","Intense Oud 90 ml EDP","Rush 75 ml EDT","Bloom 50 ml EDP"],
+    women: ["Guilty Absolute Pour Femme","Guilty Elixir de Parfum Pour Femme 60 ml"],
+    men: ["Guilty Pour Homme 90 ml EDT","Pour Homme 90 ml EDT"]
+  },
+  "Guerlain": {
+    unisex: ["Cherry Oud 100 ml EDP","Cuir Beluga 100 ml EDP","Cuir Intense 125 ml EDP","Jasmin Bonheur 100 ml EDP","Lhomme Ideal Extreme 100 ml EDP","Lhomme Ideal 100 ml EDP","Lhomme Ideal Sport 100 ml EDT","Lhomme Ideale 100 ml EDT","Mon 100 ml EDP","Oud Essentiel 125 ml EDP","Oud Nude 100 ml","Paris Patchouli Ardent 125 ml EDP","Rose Cherie 100 ml","Santal Royal 125 ml EDP","Shalimar 90 ml EDP","Shalimar Souffle de Parfum 90 ml","Tobacco Honey"]
+  },
+  "Hermes": {
+    unisex: ["Barenia 100 ml EDP","Barenia Intense 100 ml EDP","Eau des Merveeilles 100 ml EDT","H24 100 ml EDT","L'Ambre des Merveilles 100 ml","Terre D'Hermes Eau Intense Vetiver 100 ml","Terre D'Hermes Parfum 100 ml","Terre Intense","Twilly 85 ml EDP","Terre D'Hermes 50 ml EDT","Terre D'Hermes Eau Intense Vetiver 50 ml"]
+  },
+  "Issey Miyake": {
+    unisex: ["Leau Super Majeure 100 ml EDT Intense"],
+    women: ["L'Eau Dissey Women 100 ml EDT"],
+    men: ["Pour Homme 125 ml EDT"]
+  },
+  "Jean Paul Gaultier": {
+    unisex: ["Classique Intense 100 ml EDP","Gaultier 2 100 ml EDP","Scandal by Night 80 ml EDP Intense"],
+    women: ["Scandal Women 80 ml EDP","Scandal Abolu Women 80 ml EDP","Scandal Intense Women 80 ml"],
+    men: ["Scandal Le Parfum Men 100 ml EDP","Scandal Men"]
+  },
+  "Jimmy Choo": {
+    unisex: ["I Want Choo 100 ml EDP","I Want Choo Forever 100 ml EDP","I Want Choo Le Parfum 100 ml"]
+  },
+  "Jo Malone": {
+    unisex: ["Dark Amber Ginger Lily Cologne 100 ml","English Pear & Freesia Cologne 100 ml","Frangipani Flower Cologne 100 ml","Gardenia & Oud Absolu 100 ml","Moonlit Camomile Cologne 100 ml","Myrrh & Tonka 100 ml","Nectarine Blossom & Honey Cologne 100 ml","Orange Blossom Cologne 100 ml","Peony & Blush Suede Cologne 100 ml","Pomegranate Noir 100 ml","Rose & White Musk Absolu 100 ml","Scarlet Poppy 100 ml","Violet & Amber Absolu 100 ml","Wild Bluebell Cologne 100 ml"]
+  },
+  "Kayali": {
+    women: ["Vanilla Candy Rock Sugar 100 ml EDP","Yum Boujee Marshmallow 100 ml EDP"]
+  },
+  "Kenzo": {
+    unisex: ["Flower by Kenzo 50 ml EDP","Flower by Kenzo Parfum 50 ml","Homme 100 ml EDT"],
+    women: ["Jungle Women 100 ml EDP"]
+  },
+  "Kilian": {
+    unisex: ["Back To Black 50 ml EDP","Black Phantom Memento Mori 50 ml EDP","Blue Moon Ginger Dash 50 ml EDP","Good Girl Gone Bad 50 ml EDP","Intoxicated 50 ml EDP","Princess 100 ml EDP","Rolling In Love 50 ml EDP","Roses On Ice 50 ml EDP","Princess 50 ml EDP"]
+  },
+  "Lacoste": {
+    unisex: ["Essential 125 ml EDT","L.12.12 Blanc 100 ml EDP","L.12.12 Blanc-pure 100 ml EDT","Original 100 ml EDP","Red 125 ml EDT"],
+    women: ["Pour Femme 90 ml EDP"]
+  },
+  "Lancôme": {
+    women: ["Hypnose 75 ml EDP","Idole Aura 100 ml EDP","Idole Intense 75 ml","Idole Le Grand Parfum 100 ml","Idole Le Parfum 100 ml","Idole Le Parfum 75 ml","Idole Peach'N Roses","La Nuit Tresor 75 ml","La Nuit Tresor Caresse 75 ml EDP","La Vie Est Belle","La Vie Est Belle Intense 75 ml EDP","La Vie Est Belle Iris Absolu 100 ml EDP","La Vie Est Belle L'Elixir 75 ml","La Vie Est Belle L' 75 ml Extrait","La Vie Est Belle Oui Leau de Parfum 75 ml","La Vie Est Belle Rose Extraordinaire 100 ml","La Vie Est Belle Sparkling Edition 75 ml","La Vie Est Belle Vanille Nude Sensuelle 75 ml EDP","Magie Noire 50 ml EDT","Tresor In Love 75 ml EDP","Tresor Midnight Rose 75 ml EDP","Tresor Midnight Rose 50 ml EDP"]
+  },
+  "Lanvin": {
+    women: ["Eclat D'Arpege 100 ml EDP"]
+  },
+  "Maison Francis Kurkdjian": {
+    unisex: ["Baccarat Rouge 540 Biały","Oud Satin Mood 70 ml EDP","Apom Travel Set 5x11 ml","A La Rose 70 ml EDP","Aqua Media Cologne Forte 70 ml EDP","Baccarat Rouge 540 Extrait de Parfum","Gentle Fluidity 70 ml EDP","Grand Soir 70 ml EDP","Baccarat Rouge 540 White 35 ml","Oud Satin Mood 35 ml EDP"]
+  },
+  "Maison Margiela": {
+    unisex: ["Replica Autumn Vibes 100 ml EDT","Replica Coffee Break 100 ml EDT"]
+  },
+  "Marc Jacobs": {
+    women: ["Daisy 100 ml EDT"]
+  },
+  "Matiere Premiere": {
+    unisex: ["Bois D'Ebene 100 ml EDP","Crystal Saffron 100 ml EDP","Encens Suave 100 ml EDP","Falcon Leather 100 ml EDP","Parisian Musc 100 ml EDP","Radical Rose 100 ml EDP","Santal Austral 100 ml EDP"]
+  },
+  "Michael Kors": {
+    women: ["Sexy Ruby 100 ml EDP","Sparkling Blush 100 ml EDP"]
+  },
+  "Montale": {
+    unisex: ["Arabians Tonka 100 ml EDP","Black Aoud 100 ml EDP","Chocolate Greedy 100 ml EDP","Dark Purple 100 ml EDP","Fantastic Oud 100 ml EDP","Intense Cafe 100 ml EDP","Intense Tiare 100 ml EDP","Mango Manga 100 ml EDP","Mukhallat 100 ml EDP","Pink Extasy 100 ml EDP","Pretty Fruity 100 ml EDP","Red Aoud 100 ml EDP","Roses Musk 100 ml EDP","Vanilla Cake 100 ml EDP","Wood & Spices 100 ml EDP"]
+  },
+  "Montblanc": {
+    men: ["Legend 100 ml EDT"],
+    women: ["Signature 90 ml EDP"]
+  },
+  "Moschino": {
+    women: ["Toy 2 Pearl 100 ml EDP"]
+  },
+  "Narciso Rodriguez": {
+    unisex: ["Ambree 90 ml EDP","All of Me 90 ml EDP","Cristal 90 ml EDP","90 ml EDT","Rouge 90 ml EDP"],
+    women: ["for Her 100 ml EDT","for Her 100 ml EDP","for Her Forever 20 Year Edition 100 ml EDP","for Her Iridescent Fragrance 100 ml","Musc Noir for Her 100 ml EDP"],
+    men: ["Bleu Noir for Him 100 ml EDP"]
+  },
+  "Nasomatto": {
+    unisex: ["Black Afgano"]
+  },
+  "Orto Parisi": {
+    unisex: ["Risvelium Parfum 50 ml","Seminalis Parfum 50 ml","Stercus Parfum 50 ml","Terroni Parfum 50 ml","Viride Parfum 50 ml"]
+  },
+  "Paco Rabanne": {
+    unisex: ["1 Million Golden Oud 100 ml","1 Million Elixir 100 ml","1 Million Gold 100 ml EDP Intense","1 Million Lucky 100 ml EDT","1 Million Monopoly 100 ml EDT","1 Million Pac-man 100 ml EDT","1 Million Prive 100 ml EDP","1 Million Royal 100 ml","Fame Blooming Pink 80 ml EDP","Invictus 100 ml EDT","Invictus Intense 100 ml EDT","Invictus Legend 100 ml EDP","Invictus Onyx 100 ml EDT","Invictus Platinum 100 ml EDP","Invictus Victory 100 ml EDP","Lady Million EDP","Lady Million Empire 80 ml EDP","Lady Million Royal 80 ml EDP","Olympea Flora 80 ml EDP Intense","Olympea Intense 80 ml","Olympea Legend 80 ml EDP","Olympea Solar 80 ml EDP Intense","Phantom Legion 100 ml EDT","Phantom Parfum 100 ml","Invictus Victory Absolu","Invictus Victory Elixir"],
+    women: ["Pure Xs Women 80 ml EDP","Ultraviolet Women 80 ml EDP"],
+    men: ["Pure Xs Men 100 ml EDT","Xs Excess Pour Homme 100 ml EDT"]
+  },
+  "Prada": {
+    unisex: ["Candy 80 ml EDP","Luna Rossa 100 ml EDT","Luna Rossa Black 100 ml EDT","Luna Rossa Ocean 100 ml EDP","Paradoxe Intense","Paradoxe Radical Essence Parfum 90 ml","Paradoxe Virtual Flower","Paradoxe Hair Mist 90 ml"]
+  },
+  "Rabanne": {
+    unisex: ["Fame Intense 80 ml EDP Intense","Fame The Couture Edition 80 ml EDP","Midnight Sex 100 ml EDP","Olympea Parfum 80 ml","Phantom Elixir Parfum Intense 100 ml","Rose 1969 100 ml EDP","Silver Skin 100 ml EDP"],
+    women: ["Million Gold for Her Pure Diamonds 90 ml EDP","Million Gold Her Pure Jasmine 90 ml EDP"]
+  },
+  "Ralph Lauren": {
+    men: ["Polo Blue 125 ml EDT","Polo Red 125 ml EDT","Red Racing Edition 125 ml EDT"]
+  },
+  "Roberto Cavalli": {
+    women: ["75 ml EDP","Nero Assoluto 75 ml EDP","Paradiso 75 ml EDP","Paradiso Assoluto 75 ml EDP","Paradiso Azzurro 75 ml EDP"]
+  },
+  "Salvatore Ferragamo": {
+    unisex: ["Ferragamo 100 ml EDT","Intense Leather 100 ml EDP"]
+  },
+  "Sospiro": {
+    unisex: ["Erba Gold 100 ml EDP","Erba Leather 100 ml EDP","Erba Oud 100 ml EDP","Erba Pura 100 ml EDP","Erba Pura Magica 100 ml EDP","Laylati 100 ml EDP","Muse 100 ml EDP","Ouverture 100 ml EDP","Soprano 100 ml EDP","Vibrato 100 ml EDP"]
+  },
+  "T.mugler / Thierry Mugler": {
+    unisex: ["Alien 90 ml EDP","Alien Hypersense 90 ml EDP","Alien Oud Majestueux 90 ml EDP","Angel 50 ml EDP","Angel Elixir 100 ml EDP","Angel Elixir 50 ml EDP","Angel Fantasm 100 ml EDP","Angel Muse 50 ml EDP","Alien Extraintense","Aura"],
+    men: ["Alien Men 100 ml EDT"]
+  },
+  "Thomas Kosmala": {
+    unisex: ["A Never Ending Love 100 ml EDP","Arabian Passion 100 ml EDP","Bliss In Paradise 100 ml EDP","Light of Grace 100 ml EDP","Musk Otone 100 ml EDP","No.4 Sport 100 ml EDP"]
+  },
+  "Tom Ford": {
+    unisex: ["Azure Lime 100 ml EDP","Bitter Peach 100 ml EDP","Black Lacquer 100 ml EDP","Black Orchid Parfum 100 ml","Cafe Rose 100 ml EDP","Cherry Smoke 100 ml EDP","Eau de Soleil Blanc 100 ml EDP","Ebene Fume 100 ml EDP","Electric Cherry 100 ml EDP","Grey Vetiver Parfum 100 ml","Jasmin Rouge 100 ml EDP","Lavender Extreme 100 ml EDP","Mandarino di Amalfi 100 ml EDP","Metallique 100 ml EDP","Neroli Portofino 100 ml EDP","Noir Anthracite 100 ml EDP","Noir de Noir","Noir Extreme Parfum 100 ml","Ombre Leather 100 ml EDP","Ombre Leather Parfum 100 ml","Orchid Soleil 100 ml EDP","Oud Minerale 100 ml EDP","Rose Exposed 100 ml EDP","Rose Prick 100 ml EDP","Soleil Blanc 100 ml EDP","Soleil Brulant 100 ml EDP","Soleil Neige 100 ml EDP","Tuscan Leather 100 ml EDP","Vanilla Sex 100 ml EDP","Vanille Fatale 100 ml EDP","White Suede 100 ml EDP","Bitter Peach 50 ml EDP","Fabulous 50 ml EDP","Noir 50 ml EDP","Noir Extreme 50 ml EDP","Vanilla 50 ml EDP"],
+    women: ["Noir Pour Femme 100 ml EDP"],
+    men: ["Noir Pour Homme 100 ml EDP"]
+  },
+  "Valentino": {
+    unisex: ["Donna 100 ml EDP","Donna Born In Roma 100 ml EDP","Donna Born In Roma Green Stravaganza 100 ml EDP","Donna Born In Roma Intense 100 ml EDP","Donna Born In Roma Ivory 100 ml EDP","Donna Born In Roma Purple Melancholia","Donna Born In Roma Yellow Dream 100 ml EDP","Uomo 100 ml EDT","Uomo Born In Roma 100 ml EDT","Uomo Born In Roma Extradose Parfum 100 ml","Uomo Born In Roma Green Stravaganza 100 ml EDT","Uomo Born In Roma Intense 100 ml","Uomo Born In Roma Ivory 100 ml EDT","Uomo Intense 100 ml EDP","Voce Viva 100 ml EDP","Voce Viva Intensa 100 ml EDP"]
+  },
+  "Versace": {
+    unisex: ["Bright Crystal Absolu 90 ml EDP","Bright Crystal Parfum 90 ml","Crystal Noir Czarne 90 ml EDP","Crystal Noir Nowa Szata 90 ml EDP","Eau Fraiche","Eros Energy 100 ml EDP","Eros Parfum 100 ml","Versense","Yellow Diamond","Bright Crystal 50 ml EDT","Man Eau Fraiche 50 ml EDT"],
+    women: ["Crystal Emerald Pour Femme 90 ml EDP","Dylan Blush Pink Pour Femme 100 ml EDP","Dylan Purple Pour Femme 100 ml EDP","Pour Femme Dylan Blue 100 ml EDP"],
+    men: ["Dylan Blue Men 100 ml","Eau Fraiche Extreme Pour Homme 100 ml EDP","Eros Men EDP","Eros Men EDT","Pour Homme Oud Noir 100 ml EDP"]
+  },
+  "Victoria's Secret": {
+    women: ["Angel Gold 100 ml EDP","Bombshell 100 ml EDP","Tease Cocoa Soiree 100 ml EDP","Bombshell 50 ml EDP"]
+  },
+  "Viktor & Rolf": {
+    women: ["Flowerbomb 100 ml"]
+  },
+  "Yves Saint Laurent": {
+    unisex: ["Black Opium Glitter 90 ml EDP","Black Opium Extreme 90 ml","Black Opium Floral Shock 90 ml EDP","Black Opium Illicit Green 90 ml EDP","Black Opium Le Parfum","Black Opium Le Parfum 90 ml","Black Opium Neon 90 ml EDP","Black Opium Over Red 90 ml EDP","La Nuit de L'Homme Le Parfum 100 ml","Libre Berry Crush","Libre Collector Edition 90 ml EDP","Libre Collector Edition Pantera 90 ml EDP","Libre EDP","Libre 90 ml EDT","Libre Flowers & Flames Florale 90 ml EDP","Libre L'Absolu Platine 90 ml","Libre L'Eau Nue Parfum de Peau 90 ml","Libre Vanille Couture 90 ml EDP","Mon Paris","Mon Paris Couture 90 ml EDP","Mon Paris Intensement 90 ml EDP","Mon Paris Parfum Floral 90 ml","Muse Inspiring Ink 125 ml EDP","MYSLF 100 ml EDP","MYSLF L'Absolu 100 ml","MYSLF Le Parfum 100 ml","Supreme Bouquet 75 ml EDP","Tuxedo Epices Patchouli 75 ml EDP","Y Eau Fraiche 100 ml","Y 100 ml EDP Intense","Y 100 ml EDT","Y Le Parfum","Y Lelixir 100 ml","Y Live 100 ml EDT Intense","Black Opium 50 ml EDP","Y 60 ml EDT"]
+  },
+  "Zadig & Voltaire": {
+    men: ["This Is Him! Vibes of Freedom 100 ml EDT","This Is Him Undressed 100 ml EDT","This Is Him! 100 ml EDT"],
+    women: ["This Is Her Undressed 100 ml EDP","This Is Her! 100 ml EDP"],
+    unisex: ["This Is Us! 100 ml EDT"]
+  },
+  "Zarko Perfume": {
+    unisex: ["Pink Molecule 090-09 100 ml EDP"]
+  },
+  "Zoologist": {
+    unisex: ["Bee Extrait de Parfum 60 ml","Camel 60 ml Extrait de Parfum","Panda 60 ml Extrait de Parfum","Penguin 60 ml Extrait de Parfum","Squid 60 ml Extrait de Parfum"]
+  },
+  "Xerjoff": {
+    unisex: ["Accento 50 ml","Erba Gold 50 ml EDP","Erba Pura 50 ml EDP","Opera 50 ml EDP","Wardasina 50 ml EDP"]
+  }
+};
+
+let activeBrand = null;
+let activeGender = 'all';
+
+function makeSearchQuery(brand, name) {
+  return encodeURIComponent(brand + ' ' + name);
+}
+
+function douglasLink(brand, name) {
+  return 'https://www.douglas.pl/pl/search?q=' + makeSearchQuery(brand, name);
+}
+
+function sephoraLink(brand, name) {
+  return 'https://www.sephora.pl/search?q=' + makeSearchQuery(brand, name);
+}
+
+function genderLabel(g) {
+  if (g === 'women') return '<span class="gender-tag tag-women">Kobieta</span>';
+  if (g === 'men') return '<span class="gender-tag tag-men">Mężczyzna</span>';
+  return '<span class="gender-tag tag-unisex">Unisex</span>';
+}
+
+function renderBrands() {
+  const grid = document.getElementById('brandGrid');
+  const brands = Object.keys(data).sort((a,b) => a.localeCompare(b, 'pl'));
+  grid.innerHTML = brands.map(b =>
+    `<button class="brand-btn" onclick="selectBrand('${b.replace(/'/g,"\\'")}', this)">${b}</button>`
+  ).join('');
+}
+
+function selectBrand(brand, btn) {
+  activeBrand = brand;
+  activeGender = 'all';
+  document.querySelectorAll('.brand-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  document.getElementById('genderBar').classList.add('visible');
+  document.querySelectorAll('.gender-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector('[data-gender="all"]').classList.add('active');
+  document.getElementById('backBtn').classList.add('visible');
+  document.getElementById('searchResultsSection').classList.remove('visible');
+  document.getElementById('searchInput').value = '';
+  renderPerfumes();
+}
+
+function filterGender(gender, btn) {
+  activeGender = gender;
+  document.querySelectorAll('.gender-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderPerfumes();
+}
+
+function renderPerfumes() {
+  const section = document.getElementById('perfumeSection');
+  const grid = document.getElementById('perfumeGrid');
+  const nameEl = document.getElementById('selectedBrandName');
+  const countEl = document.getElementById('countLabel');
+
+  if (!activeBrand) { section.classList.remove('visible'); return; }
+
+  section.classList.add('visible');
+  nameEl.textContent = activeBrand;
+
+  const brandData = data[activeBrand] || {};
+  let items = [];
+
+  const genders = activeGender === 'all'
+    ? ['women','men','unisex']
+    : [activeGender];
+
+  genders.forEach(g => {
+    if (brandData[g]) {
+      brandData[g].forEach(name => items.push({ name, gender: g }));
+    }
+  });
+
+  countEl.textContent = items.length + (items.length === 1 ? ' model' : items.length < 5 ? ' modele' : ' modeli');
+
+  if (items.length === 0) {
+    grid.innerHTML = '<div class="empty-state">Brak perfum w tej kategorii</div>';
+    return;
+  }
+
+  grid.innerHTML = items.map(({ name, gender }) => `
+    <div class="perfume-card">
+      <div class="perfume-name">${name}</div>
+      ${genderLabel(gender)}
+      <div class="shop-links">
+        <a class="shop-link" href="${douglasLink(activeBrand, name)}" target="_blank" rel="noopener">
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 1v10M1 6h10"/></svg>
+          Douglas
+        </a>
+        <a class="shop-link" href="${sephoraLink(activeBrand, name)}" target="_blank" rel="noopener">
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 1v10M1 6h10"/></svg>
+          Sephora
+        </a>
+      </div>
+    </div>
+  `).join('');
+}
+
+function goBack() {
+  activeBrand = null;
+  activeGender = 'all';
+  document.querySelectorAll('.brand-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('genderBar').classList.remove('visible');
+  document.getElementById('backBtn').classList.remove('visible');
+  document.getElementById('perfumeSection').classList.remove('visible');
+  document.getElementById('searchResultsSection').classList.remove('visible');
+  document.getElementById('searchInput').value = '';
+}
+
+// SEARCH
+document.getElementById('searchInput').addEventListener('input', function() {
+  const q = this.value.trim().toLowerCase();
+  if (!q) {
+    document.getElementById('searchResultsSection').classList.remove('visible');
+    if (activeBrand) document.getElementById('perfumeSection').classList.add('visible');
+    return;
+  }
+
+  document.getElementById('perfumeSection').classList.remove('visible');
+  const resultsSection = document.getElementById('searchResultsSection');
+  const searchGrid = document.getElementById('searchGrid');
+  resultsSection.classList.add('visible');
+
+  let results = [];
+  Object.entries(data).forEach(([brand, genders]) => {
+    Object.entries(genders).forEach(([gender, names]) => {
+      names.forEach(name => {
+        if (name.toLowerCase().includes(q) || brand.toLowerCase().includes(q)) {
+          results.push({ brand, name, gender });
+        }
+      });
+    });
+  });
+
+  if (results.length === 0) {
+    searchGrid.innerHTML = '<div class="empty-state" style="grid-column:1/-1">Nie znaleziono perfum dla „' + q + '"</div>';
+    return;
+  }
+
+  searchGrid.innerHTML = results.map(({ brand, name, gender }) => `
+    <div class="perfume-card">
+      <div style="font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);margin-bottom:4px">${brand}</div>
+      <div class="perfume-name">${name}</div>
+      ${genderLabel(gender)}
+      <div class="shop-links">
+        <a class="shop-link" href="${douglasLink(brand, name)}" target="_blank" rel="noopener">
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 1v10M1 6h10"/></svg>
+          Douglas
+        </a>
+        <a class="shop-link" href="${sephoraLink(brand, name)}" target="_blank" rel="noopener">
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 1v10M1 6h10"/></svg>
+          Sephora
+        </a>
+      </div>
+    </div>
+  `).join('');
+});
+
+renderBrands();
+</script>
+</body>
+</html>
